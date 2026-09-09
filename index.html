@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>JARVIS — বাংলা AI অ্যাসিস্ট্যান্ট</title>
+<meta name="description" content="তোমার ব্যক্তিগত বাংলা ভয়েস AI অ্যাসিস্ট্যান্ট" />
+<meta name="theme-color" content="#03070d" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="JARVIS" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="scanlines" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="hud-top">
+  <div class="brand">
+    <span class="dot-live"></span>
+    <span class="brand-name">JARVIS</span>
+    <span class="brand-tag" id="hudStatus">সিস্টেম প্রস্তুত</span>
+  </div>
+  <div class="top-right">
+    <div class="clock">
+      <span id="clockTime">--:--</span>
+      <span class="clock-date" id="clockDate">--</span>
+    </div>
+    <button class="icon-btn" id="btnInstall" title="হোম স্ক্রিনে ইনস্টল" hidden>
+      <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    </button>
+    <button class="icon-btn" id="btnNotes" title="নোট ও টাস্ক">
+      <svg viewBox="0 0 24 24"><path d="M9 5h9a1 1 0 011 1v13a1 1 0 01-1 1H6a1 1 0 01-1-1V6a1 1 0 011-1h3M9 5a1 1 0 011-1h4a1 1 0 011 1M9 12h6M9 16h4"/></svg>
+    </button>
+    <button class="icon-btn" id="btnSettings" title="সেটিংস">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 110-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V2a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H22a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="orb-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <canvas id="viz" width="520" height="520"></canvas>
+    <button class="orb" id="orb" aria-label="কথা বলতে চাপ দাও">
+      <span class="orb-core"></span>
+    </button>
+  </div>
+  <p class="status-line" id="statusLine">মাইক চাপ দিয়ে বাংলায় বলো</p>
+  <p class="sub-line" id="subLine">“জার্ভিস” বলেও ডাকতে পারো</p>
+</main>
+
+<section class="chat" id="chat" aria-live="polite"></section>
+
+<footer class="composer">
+  <button class="round-btn ghost" id="btnStop" title="থামাও" hidden>
+    <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+  </button>
+  <input id="textInput" type="text" inputmode="text" placeholder="নাহলে এখানে লিখো…" autocomplete="off" />
+  <button class="round-btn send" id="btnSend" title="পাঠাও">
+    <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+  </button>
+  <button class="round-btn mic" id="btnMic" title="কথা বলো">
+    <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 013 3v7a3 3 0 01-6 0V5a3 3 0 013-3zM19 10v2a7 7 0 01-14 0v-2M12 19v3"/></svg>
+  </button>
+</footer>
+
+<!-- ============ SETTINGS DRAWER ============ -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-label="সেটিংস">
+  <div class="drawer-head">
+    <h2>কনফিগারেশন</h2>
+    <button class="icon-btn close" id="btnCloseDrawer">
+      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+
+    <div class="card" id="setupCard">
+      <h3>১. ব্রেইন কানেক্ট করো <span class="pill free">FREE</span></h3>
+      <p class="hint">একটা ফ্রি API key বসাও। key তোমার ফোনেই (localStorage) থাকে, আমার কাছে যায় না।</p>
+
+      <label>প্রোভাইডার</label>
+      <select id="selProvider">
+        <option value="gemini">Google Gemini — ফ্রি key, সবচেয়ে সহজ</option>
+        <option value="openrouter">OpenRouter — এক key-এ ৩০+ ফ্রি মডেল</option>
+        <option value="groq">Groq — দ্রুততম, ফ্রি tier</option>
+        <option value="custom">Custom / OpenAI-compatible (Ollama, LM Studio…)</option>
+      </select>
+
+      <div id="providerHelp" class="helpbox"></div>
+
+      <div id="customEndpointRow" hidden>
+        <label>Endpoint URL</label>
+        <input id="inpEndpoint" type="text" placeholder="https://api.example.com/v1" spellcheck="false" />
+      </div>
+
+      <label>API key</label>
+      <div class="key-row">
+        <input id="inpApiKey" type="password" placeholder="এখানে key পেস্ট করো" autocomplete="off" spellcheck="false" />
+        <button class="mini-btn" id="btnToggleKey">দেখাও</button>
+      </div>
+
+      <label>মডেল</label>
+      <div class="model-row">
+        <select id="selModel"></select>
+        <button class="mini-btn" id="btnRefreshModels" title="ফ্রি মডেল লিস্ট রিফ্রেশ">⟳</button>
+      </div>
+      <label class="checkline"><input type="checkbox" id="chkOnlyFree" checked /> শুধু ফ্রি মডেল দেখাও</label>
+      <label class="checkline" id="onlineRow"><input type="checkbox" id="chkOnline" /> ওয়েব সার্চ চালু রাখো (লাইভ তথ্য)</label>
+
+      <button class="primary-btn" id="btnSaveKey">সেভ ও টেস্ট করো</button>
+      <p class="save-note" id="keyStatus"></p>
+    </div>
+
+    <div class="card">
+      <h3>২. কণ্ঠস্বর (Voice)</h3>
+      <label>ভাষা</label>
+      <select id="selLang">
+        <option value="bn-BD">বাংলা (বাংলাদেশ)</option>
+        <option value="bn-IN">বাংলা (ভারত)</option>
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="hi-IN">हिन्दी</option>
+      </select>
+      <label>ভয়েস</label>
+      <select id="selVoice"></select>
+      <label>গতি <span class="val" id="rateVal">1.0</span></label>
+      <input type="range" id="rngRate" min="0.6" max="1.4" step="0.05" value="1" />
+      <label>পিচ <span class="val" id="pitchVal">1.0</span></label>
+      <input type="range" id="rngPitch" min="0.6" max="1.5" step="0.05" value="1" />
+      <label class="checkline"><input type="checkbox" id="chkAutoSpeak" checked /> উত্তর নিজে থেকে বলে শোনাও</label>
+      <label class="checkline"><input type="checkbox" id="chkWake" checked /> “জার্ভিস” বলে ডাকলে জেগে উঠবে (wake word)</label>
+      <label class="checkline"><input type="checkbox" id="chkListenAfter" /> উত্তরের পর আবার শুনতে থাকবে (হ্যান্ডস-ফ্রি)</label>
+      <div class="btn-row">
+        <button class="ghost-btn" id="btnTestVoice">🔊 টেস্ট করো</button>
+        <button class="ghost-btn" id="btnStopVoice">■ থামাও</button>
+      </div>
+      <p class="hint" id="voiceHint"></p>
+    </div>
+
+    <div class="card">
+      <h3>৩. ব্যক্তিত্ব</h3>
+      <label>তোমাকে কী নামে ডাকবে</label>
+      <input id="inpUserName" type="text" placeholder="যেমন: আবিদ / স্যার" />
+      <label>কীভাবে কথা বলবে</label>
+      <select id="selPersona">
+        <option value="jarvis">JARVIS — ভদ্র, সংক্ষিপ্ত, প্রফেশনাল</option>
+        <option value="friend">বন্ধু — আড্ডাবাজ, মজার</option>
+        <option value="teacher">শিক্ষক — বিস্তারিত বুঝিয়ে বলে</option>
+      </select>
+      <label class="checkline"><input type="checkbox" id="chkShortReply" checked /> যতটা সম্ভব ছোট উত্তর (ভয়েসের জন্য ভালো)</label>
+    </div>
+
+    <div class="card">
+      <h3>৪. ডেটা</h3>
+      <div class="btn-row">
+        <button class="ghost-btn" id="btnClearChat">চ্যাট মুছে ফেলো</button>
+        <button class="ghost-btn danger" id="btnResetAll">সব রিসেট</button>
+      </div>
+      <p class="hint">নোট, টাস্ক, রিমাইন্ডার ও চ্যাট — সব তোমার ফোনেই থাকে। সার্ভারে কিছু যায় না।</p>
+    </div>
+
+    <div class="card credits">
+      <h3>ফ্রি key কোথায় পাবে?</h3>
+      <ul>
+        <li><b>Google Gemini:</b> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> → গুগল অ্যাকাউন্ট দিয়ে ঢুকে <i>Create API key</i>। বিশ্বাস করো, ২ মিনিটের কাজ — সম্পূর্ণ ফ্রি।</li>
+        <li><b>OpenRouter:</b> <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> → সাইন ইন → Create Key। এরপর মডেল লিস্টে <code>:free</code> মডেলগুলো বেছে নাও।</li>
+        <li><b>Groq:</b> <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> — ফ্রি ও খুব দ্রুত।</li>
+        <li><b>একেবারে ইন্টারনেট ছাড়া:</b> Custom প্রোভাইডারে <code>http://localhost:11434/v1</code> দিয়ে Ollama চালাতে পারো।</li>
+      </ul>
+      <p class="hint">⚠️ ওয়েব-স্পিচ (STT) চালাতে Chrome/Edge ব্রাউজার ব্যবহার করো — Safari-তে মাইক ইনপুট সীমিত।</p>
+    </div>
+
+    <p class="version">JARVIS BD · v1.0 · বাংলায় তৈরি 🇧🇩</p>
+  </div>
+</aside>
+
+<!-- ============ NOTES DRAWER ============ -->
+<div class="drawer-backdrop" id="notesBackdrop"></div>
+<aside class="drawer left" id="notesDrawer" aria-label="নোট ও টাস্ক">
+  <div class="drawer-head">
+    <h2>নোট · টাস্ক · রিমাইন্ডার</h2>
+    <button class="icon-btn close" id="btnCloseNotes">
+      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <div class="seg" id="dataSeg">
+      <button class="active" data-tab="tasks">টাস্ক</button>
+      <button data-tab="notes">নোট</button>
+      <button data-tab="reminders">রিমাইন্ডার</button>
+      <button data-tab="memory">স্মৃতি</button>
+    </div>
+    <div id="dataList" class="data-list"></div>
+    <div class="add-row">
+      <input id="dataInput" type="text" placeholder="নতুন যোগ করো…" />
+      <button class="mini-btn primary" id="btnAddData">+</button>
+    </div>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
