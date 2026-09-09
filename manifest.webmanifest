@@ -1,0 +1,25 @@
+{
+  "name": "JARVIS — বাংলা AI অ্যাসিস্ট্যান্ট",
+  "short_name": "JARVIS",
+  "description": "তোমার ব্যক্তিগত বাংলা ভয়েস AI অ্যাসিস্ট্যান্ট — কথা শোনে, বোঝে, কাজ করে, উত্তর বলে।",
+  "lang": "bn",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "jarvis-bd",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#03070d",
+  "theme_color": "#03070d",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "নতুন কথোপকথন", "short_name": "চ্যাট", "url": "./index.html?new=1" },
+    { "name": "নোট ও টাস্ক", "short_name": "নোট", "url": "./index.html?tab=tasks" }
+  ]
+}
